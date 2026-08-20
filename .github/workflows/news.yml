@@ -1,0 +1,49 @@
+name: News
+
+on:
+  schedule:
+    - cron: '0,15,30,45 * * * *'
+  workflow_dispatch:
+
+jobs:
+  news:
+    runs-on: ubuntu-latest
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+      GH_PAT: ${{ secrets.GH_PAT }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: true
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4
+          bundler-cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate news posts
+        run: node .github/scripts/news-generator.cjs
+
+      - name: Build site
+        run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+
+      - name: Deploy to GitHub Pages
+        run: |
+          git config --global user.email "ci@github.com"
+          git config --global user.name "github-actions"
+          git switch --orphan gh-pages
+          git --work-tree _site add -A
+          git --work-tree _site commit -m 'news: update site'
+          git push --force "https://x-access-token:${GH_PAT}@github.com/wealthandrich/news.git" HEAD:gh-pages
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
