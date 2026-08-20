@@ -189,9 +189,6 @@ async function main() {
       execSync('git commit -m "news: add ' + newCount + ' new articles"', { cwd: REPO_DIR });
       
       
-      if (token) {
-        
-      }
       execSync('git push origin main', { cwd: REPO_DIR });
       console.log('Push complete');
     } catch (err) {
