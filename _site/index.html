@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wealth & Rich News</title>
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #111827;
+      --bg-card: #1a1f2e;
+      --bg-hover: #242938;
+      --text-primary: #e8eaed;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --accent: #d4af37;
+      --accent-hover: #f2db89;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.12);
+      --shadow: rgba(0, 0, 0, 0.4);
+      --sidebar-width: 280px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); text-decoration: underline; }
+    aside#sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 1.25rem;
+      overflow-y: auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+    .profile-wrapper {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .site-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-decoration: none;
+      display: block;
+      margin-top: 0.75rem;
+    }
+    .site-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+    .nav { list-style: none; flex-grow: 1; }
+    .nav-item { margin-bottom: 0.5rem; }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0.75rem;
+      color: var(--text-primary);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+    .nav-link:hover, .nav-link.active {
+      background: var(--bg-hover);
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .sidebar-bottom {
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      align-items: center;
+    }
+    .sidebar-bottom a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: color 0.2s;
+    }
+    .sidebar-bottom a:hover { color: var(--accent); text-decoration: none; }
+    #mode-toggle {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0.5rem;
+      transition: color 0.2s;
+    }
+    #mode-toggle:hover { color: var(--accent); }
+    #main-wrapper { margin-left: var(--sidebar-width); min-height: 100vh; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    #topbar-wrapper {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    #topbar { display: flex; justify-content: space-between; align-items: center; }
+    #breadcrumb { color: var(--text-secondary); font-size: 0.9rem; }
+    #search-trigger {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0.5rem;
+    }
+    #search {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+    }
+    #search.active { display: flex; }
+    #search-input {
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      outline: none;
+      width: 200px;
+    }
+    #search-cancel {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .row { display: flex; gap: 2rem; margin-top: 2rem; margin-bottom: 2rem; }
+    main { flex: 1; min-width: 0; }
+    #post-list { display: flex; flex-direction: column; gap: 1.25rem; }
+    .card-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .card-wrapper:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px var(--shadow);
+    }
+    .post-preview {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      padding: 1.5rem;
+    }
+    .card-body { display: flex; flex-direction: column; flex-grow: 1; }
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+      line-height: 1.3;
+    }
+    .card-text {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+      flex-grow: 1;
+    }
+    .card-text p { margin: 0; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .post-meta { display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; color: var(--text-muted); margin-top: auto; flex-wrap: wrap; }
+    .post-meta i { margin-right: 0.25rem; }
+    aside#panel-wrapper { width: 300px; flex-shrink: 0; }
+    .panel-heading {
+      font-size: 1.1rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    #access-lastmod .content { list-style: none; }
+    #access-lastmod .content li { padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+    #access-lastmod .content li:last-child { border-bottom: none; }
+    #access-lastmod .content a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 0.95rem;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #access-lastmod .content a:hover { color: var(--accent); }
+    .post-tag {
+      display: inline-block;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      margin: 0.25rem 0.25rem 0.5rem 0;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .post-tag:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    #back-to-top {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--accent);
+      color: var(--bg-primary);
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px var(--shadow);
+      z-index: 90;
+    }
+    #back-to-top.visible { display: flex; }
+    @media (max-width: 1200px) { aside#panel-wrapper { display: none; } }
+    @media (max-width: 1024px) {
+      aside#sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+      aside#sidebar.open { transform: translateX(0); }
+      #main-wrapper { margin-left: 0; }
+      .row { flex-direction: column; }
+    }
+    @media (max-width: 768px) { .container { padding: 1rem; } #search { display: none !important; } }
+  </style>
+</head>
+<body>
+  <aside id="sidebar">
+    <div class="profile-wrapper">
+      <div class="site-title">Wealth & Rich</div>
+      <div class="site-subtitle">Financial News & Insights</div>
+    </div>
+    <nav>
+      <ul class="nav">
+        <li class="nav-item"><a href="/" class="nav-link active">🏠 Home</a></li>
+        <li class="nav-item"><a href="/categories/" class="nav-link">📂 Categories</a></li>
+        <li class="nav-item"><a href="/tags/" class="nav-link">🏷️ Tags</a></li>
+        <li class="nav-item"><a href="/archives/" class="nav-link">📁 Archives</a></li>
+        <li class="nav-item"><a href="https://wealthandrich.com" class="nav-link">🌐 Main Site</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="https://t.me/cbinewschannel" target="_blank" aria-label="Telegram">📱</a>
+      <a href="https://twitter.com/wealthandrich" target="_blank" aria-label="Twitter">🐦</a>
+      <a href="https://linkedin.com/company/wealthandrich" target="_blank" aria-label="LinkedIn">💼</a>
+      <a href="/rss.xml" aria-label="RSS">📡</a>
+      <button id="mode-toggle" aria-label="Theme">🌓</button>
+    </div>
+  </aside>
+  <div id="main-wrapper">
+    <div id="topbar-wrapper">
+      <div class="container">
+        <div id="topbar">
+          <nav id="breadcrumb">Home / News</nav>
+          <div style="display:flex;align-items:center;gap:1rem;">
+            <search id="search">
+              <span>🔍</span>
+              <input type="search" id="search-input" placeholder="Search..." autocomplete="off">
+              <button id="search-cancel">Cancel</button>
+            </search>
+            <button id="search-trigger" aria-label="Search">🔍</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <main>
+          <div id="post-list"></div>
+        </main>
+        <aside id="panel-wrapper">
+          <section id="access-lastmod" style="margin-bottom: 2rem;">
+            <h2 class="panel-heading">Recently Updated</h2>
+            <div class="content"><ul></ul></div>
+          </section>
+          <section>
+            <h2 class="panel-heading">Trending Tags</h2>
+            <div id="trending-tags"><span class="post-tag">Asset Management</span><span class="post-tag">Blockchain</span><span class="post-tag">Investment</span><span class="post-tag">Finance</span><span class="post-tag">Citizenship</span><span class="post-tag">IPO</span><span class="post-tag">Tokenization</span><span class="post-tag">AI</span><span class="post-tag">Real Estate</span></div>
+          </section>
+        </aside>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <p>© 2026 <a href="https://wealthandrich.com" style="color: var(--accent); text-decoration: none;">Wealth & Rich</a>. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; font-size: 0.85rem;">Powered by GitHub Pages | Auto-updated every 15 minutes</p>
+      </div>
+    </footer>
+  </div>
+  <button id="back-to-top" aria-label="Back to top">↑</button>
+  <script>
+    let allEntries = [];
+    document.getElementById('search-trigger').addEventListener('click', () => {
+      document.getElementById('search').classList.add('active');
+      document.getElementById('search-input').focus();
+    });
+    document.getElementById('search-cancel').addEventListener('click', () => {
+      document.getElementById('search').classList.remove('active');
+      document.getElementById('search-input').value = '';
+    });
+    document.getElementById('search-input').addEventListener('keyup', (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = allEntries.filter(entry => entry.title.toLowerCase().includes(query) || entry.description.toLowerCase().includes(query));
+      renderPosts(filtered.slice(0, 20));
+    });
+    document.getElementById('mode-toggle').addEventListener('click', () => {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+    function renderPosts(entries) {
+      const container = document.getElementById('post-list');
+      if (!entries.length) { container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 3rem;">No articles found.</p>'; return; }
+      container.innerHTML = entries.map(entry => `
+        <article class="card-wrapper">
+          <a href="${entry.link}" target="_blank" rel="noreferrer noopener" class="post-preview">
+            <div class="card-body">
+              <h2 class="card-title">${entry.title}</h2>
+              <div class="card-text"><p>${entry.description}</p></div>
+              <div class="post-meta"><span>📅 ${new Date(entry.published).toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'})}</span></div>
+            </div>
+          </a>
+        </article>
+      `).join('');
+    }
+    document.getElementById('back-to-top').addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    window.addEventListener('scroll', () => { document.getElementById('back-to-top').classList.toggle('visible', window.scrollY > 400); });
+    fetch('/rss.json').then(r => r.json()).then(data => { allEntries = data.items || []; renderPosts(allEntries.slice(0, 20)); }).catch(() => {});
+  </script>
+</body>
+</html>
