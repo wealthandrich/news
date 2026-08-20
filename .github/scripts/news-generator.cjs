@@ -188,7 +188,7 @@ async function main() {
       execSync('git add -A', { cwd: REPO_DIR });
       execSync('git commit -m "news: add ' + newCount + ' new articles"', { cwd: REPO_DIR });
       
-      const token = process.env.GH_PAT || process.env.GITHUB_TOKEN;
+      const token = process.env.GH_PAT;
       if (token) {
         execSync(`git remote set-url origin https://x-access-token:${token}@github.com/wealthandrich/news.git`, { cwd: REPO_DIR });
       }
